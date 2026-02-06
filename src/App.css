@@ -1425,3 +1425,235 @@ header h1 {
     gap: 15px;
   }
 }
+/* ==========================================
+   EXPORTAR / IMPORTAR
+   ========================================== */
+
+.exportar-importar-container {
+  animation: fadeIn 0.3s ease;
+}
+
+.exportar-importar-container h3 {
+  color: var(--text-primary);
+  margin-bottom: 25px;
+  font-size: 22px;
+}
+
+.export-section,
+.import-section {
+  background: var(--input-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 15px;
+  padding: 25px;
+  margin-bottom: 20px;
+}
+
+.export-section h4,
+.import-section h4 {
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  font-size: 18px;
+}
+
+/* Botões de Exportar */
+.export-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.btn-export {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+  border: 2px solid var(--border-color);
+  border-radius: 15px;
+  background: var(--bg-card);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-export:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+}
+
+.btn-export .btn-icon {
+  font-size: 32px;
+}
+
+.btn-export .btn-text {
+  text-align: left;
+  flex: 1;
+}
+
+.btn-export strong {
+  display: block;
+  color: var(--text-primary);
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.btn-export small {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.btn-csv:hover {
+  border-color: #4CAF50;
+}
+
+.btn-json:hover {
+  border-color: #2196F3;
+}
+
+.btn-share:hover {
+  border-color: #FF9800;
+}
+
+/* Import */
+.btn-show-import {
+  width: 100%;
+  padding: 15px;
+  border: 2px dashed var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-show-import:hover {
+  border-color: var(--input-focus);
+  background: var(--input-bg);
+}
+
+.import-form {
+  animation: slideIn 0.3s ease;
+}
+
+.import-info {
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.import-info p {
+  color: var(--text-primary);
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.import-info ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.import-info li {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin-bottom: 8px;
+  padding-left: 25px;
+  position: relative;
+}
+
+.file-upload-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px;
+  border: 2px dashed var(--input-focus);
+  border-radius: 15px;
+  background: var(--bg-card);
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-bottom: 15px;
+}
+
+.file-upload-label:hover {
+  background: var(--input-bg);
+  transform: scale(1.02);
+}
+
+.file-icon {
+  font-size: 32px;
+}
+
+.file-upload-label span:last-child {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.file-input {
+  display: none;
+}
+
+.btn-cancel-import {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid var(--border-color);
+  background: var(--input-bg);
+  color: var(--text-secondary);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-cancel-import:hover {
+  border-color: #f44336;
+  color: #f44336;
+}
+
+/* Estatísticas */
+.export-stats {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.stat-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px;
+  background: var(--input-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+}
+
+.stat-item .stat-icon {
+  font-size: 28px;
+}
+
+.stat-item div {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-item strong {
+  color: var(--text-primary);
+  font-size: 18px;
+}
+
+.stat-item small {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+@media (max-width: 768px) {
+  .export-buttons {
+    grid-template-columns: 1fr;
+  }
+  
+  .export-stats {
+    flex-direction: column;
+  }
+}

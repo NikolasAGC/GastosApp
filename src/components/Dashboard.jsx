@@ -7,12 +7,13 @@ import ModalEditarGasto from './ModalEditarGasto'
 import MetasOrcamento from './MetasOrcamento'
 import CalendarioGastos from './CalendarioGastos'
 import Lembretes from './Lembretes'
+import ExportarImportar from './ExportarImportar'
 import { editarGasto, deletarGasto } from '../services/gastoService'
 
 function Dashboard({ apiUrl }) {
   const [gastos, setGastos] = useState([])
   const [periodo, setPeriodo] = useState('mes')
-  const [abaDashboard, setAbaDashboard] = useState('visao-geral') // 'visao-geral', 'lista', 'calendario', 'metas', 'lembretes'
+  const [abaDashboard, setAbaDashboard] = useState('visao-geral')
   const [gastoEditando, setGastoEditando] = useState(null)
   const [indexEditando, setIndexEditando] = useState(null)
 
@@ -48,7 +49,7 @@ function Dashboard({ apiUrl }) {
 
       // Atualizar na planilha
       await editarGasto(apiUrl, indexEditando, {
-        pin: '1234', // Use o PIN real
+        pin: '1234', // Use o PIN real do usuário
         data: gastoAtualizado.data,
         categoria: gastoAtualizado.categoria,
         valor: gastoAtualizado.valor,
@@ -83,6 +84,27 @@ function Dashboard({ apiUrl }) {
     } catch (error) {
       console.error('Erro ao deletar:', error)
       alert('❌ Erro ao deletar gasto')
+    }
+  }
+
+  const handleImportar = (gastosImportados) => {
+    try {
+      // Mesclar com gastos existentes
+      const gastosAtualizados = [...gastos, ...gastosImportados]
+      
+      // Remover duplicados (baseado em timestamp)
+      const gastosUnicos = gastosAtualizados.filter((gasto, index, self) =>
+        index === self.findIndex(g => g.timestamp === gasto.timestamp)
+      )
+      
+      // Salvar
+      localStorage.setItem('gastos-historico', JSON.stringify(gastosUnicos))
+      setGastos(gastosUnicos)
+      
+      console.log(`✅ ${gastosImportados.length} gastos importados`)
+    } catch (error) {
+      console.error('Erro ao importar gastos:', error)
+      alert('❌ Erro ao importar gastos')
     }
   }
 
@@ -174,6 +196,12 @@ function Dashboard({ apiUrl }) {
         >
           🔔 Lembretes
         </button>
+        <button 
+          className={`dashboard-tab ${abaDashboard === 'exportar' ? 'active' : ''}`}
+          onClick={() => setAbaDashboard('exportar')}
+        >
+          📁 Exportar/Importar
+        </button>
       </nav>
 
       {/* Conteúdo das sub-abas */}
@@ -236,6 +264,13 @@ function Dashboard({ apiUrl }) {
 
       {abaDashboard === 'lembretes' && (
         <Lembretes />
+      )}
+
+      {abaDashboard === 'exportar' && (
+        <ExportarImportar 
+          gastos={gastos}
+          onImportar={handleImportar}
+        />
       )}
 
       {/* Modal de Edição */}
