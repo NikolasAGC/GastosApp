@@ -1,50 +1,24 @@
-const CACHE_NAME = 'gastos-v1';
+const CACHE_NAME = 'gastos-v1'
+const BASE_PATH = '/GastosApp'
+
 const urlsToCache = [
-  '/',
-  '/index.html'
-];
+  `${BASE_PATH}/`,
+  `${BASE_PATH}/index.html`,
+  `${BASE_PATH}/manifest.json`
+]
 
-// Instalar Service Worker
-self.addEventListener('install', event => {
+self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('📦 Cache aberto');
-        return cache.addAll(urlsToCache);
-      })
-  );
-  self.skipWaiting();
-});
-
-// Ativar Service Worker
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('🗑️ Removendo cache antigo:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(urlsToCache)
     })
-  );
-  self.clients.claim();
-});
+  )
+})
 
-// Interceptar requisições
-self.addEventListener('fetch', event => {
-  // Não cachear requisições para a API do Google
-  if (event.request.url.includes('script.google.com')) {
-    return;
-  }
-
+self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Retornar do cache se existir, senão buscar da rede
-        return response || fetch(event.request);
-      })
-  );
-});
+    caches.match(event.request).then((response) => {
+      return response || fetch(event.request)
+    })
+  )
+})
