@@ -8,6 +8,7 @@ import MetasOrcamento from './MetasOrcamento'
 import CalendarioGastos from './CalendarioGastos'
 import Lembretes from './Lembretes'
 import ExportarImportar from './ExportarImportar'
+import ConfiguracaoOrcamento from './ConfiguracaoOrcamento'
 import { editarGasto, deletarGasto } from '../services/gastoService'
 
 function Dashboard({ apiUrl }) {
@@ -16,14 +17,26 @@ function Dashboard({ apiUrl }) {
   const [abaDashboard, setAbaDashboard] = useState('visao-geral')
   const [gastoEditando, setGastoEditando] = useState(null)
   const [indexEditando, setIndexEditando] = useState(null)
+  const [orcamentoMensal, setOrcamentoMensal] = useState(6440)
 
   useEffect(() => {
     carregarDados()
+    carregarOrcamento()
     
     // Atualizar quando houver mudanças
-    const interval = setInterval(carregarDados, 3000)
+    const interval = setInterval(() => {
+      carregarDados()
+      carregarOrcamento()
+    }, 3000)
     return () => clearInterval(interval)
   }, [])
+
+  const carregarOrcamento = () => {
+    const saved = localStorage.getItem('orcamento-mensal')
+    if (saved) {
+      setOrcamentoMensal(parseFloat(saved))
+    }
+  }
 
   const carregarDados = () => {
     try {
@@ -41,15 +54,13 @@ function Dashboard({ apiUrl }) {
 
   const handleSalvarEdicao = async (gastoAtualizado) => {
     try {
-      // Atualizar localStorage
       const novosGastos = [...gastos]
       novosGastos[indexEditando] = gastoAtualizado
       localStorage.setItem('gastos-historico', JSON.stringify(novosGastos))
       setGastos(novosGastos)
 
-      // Atualizar na planilha
       await editarGasto(apiUrl, indexEditando, {
-        pin: '1234', // Use o PIN real do usuário
+        pin: '1234',
         data: gastoAtualizado.data,
         categoria: gastoAtualizado.categoria,
         valor: gastoAtualizado.valor,
@@ -72,12 +83,10 @@ function Dashboard({ apiUrl }) {
     if (!confirm('Tem certeza que deseja deletar este gasto?')) return
 
     try {
-      // Remover do localStorage
       const novosGastos = gastos.filter((_, i) => i !== index)
       localStorage.setItem('gastos-historico', JSON.stringify(novosGastos))
       setGastos(novosGastos)
 
-      // Deletar na planilha
       await deletarGasto(apiUrl, index, '1234')
 
       alert('✅ Gasto deletado com sucesso!')
@@ -89,15 +98,12 @@ function Dashboard({ apiUrl }) {
 
   const handleImportar = (gastosImportados) => {
     try {
-      // Mesclar com gastos existentes
       const gastosAtualizados = [...gastos, ...gastosImportados]
       
-      // Remover duplicados (baseado em timestamp)
       const gastosUnicos = gastosAtualizados.filter((gasto, index, self) =>
         index === self.findIndex(g => g.timestamp === gasto.timestamp)
       )
       
-      // Salvar
       localStorage.setItem('gastos-historico', JSON.stringify(gastosUnicos))
       setGastos(gastosUnicos)
       
@@ -147,16 +153,6 @@ function Dashboard({ apiUrl }) {
     return acc + (isNaN(valor) ? 0 : valor)
   }, 0)
 
-  if (gastos.length === 0) {
-    return (
-      <div className="dashboard-empty">
-        <span className="empty-icon">📊</span>
-        <h3>Nenhum gasto registrado ainda</h3>
-        <p>Adicione seu primeiro gasto na aba "Adicionar Gasto"</p>
-      </div>
-    )
-  }
-
   return (
     <div className="dashboard">
       <div className="dashboard-header">
@@ -202,12 +198,18 @@ function Dashboard({ apiUrl }) {
         >
           📁 Exportar/Importar
         </button>
+        <button 
+          className={`dashboard-tab ${abaDashboard === 'config' ? 'active' : ''}`}
+          onClick={() => setAbaDashboard('config')}
+        >
+          ⚙️ Configurações
+        </button>
       </nav>
 
       {/* Conteúdo das sub-abas */}
       {abaDashboard === 'visao-geral' && (
         <>
-          <OrcamentoAlert totalGasto={totalGasto} limite={6440} />
+          <OrcamentoAlert totalGasto={totalGasto} limite={orcamentoMensal} />
 
           <div className="dashboard-stats">
             <div className="stat-card">
@@ -242,20 +244,44 @@ function Dashboard({ apiUrl }) {
             </div>
           </div>
 
-          <GraficoGastos gastos={gastosFiltrados} />
+          {gastos.length > 0 && <GraficoGastos gastos={gastosFiltrados} />}
+          
+          {gastos.length === 0 && (
+            <div className="dashboard-empty-hint">
+              <span className="hint-icon">📊</span>
+              <h3>Adicione gastos para ver gráficos</h3>
+              <p>Vá em "Adicionar Gasto" ou "Exportar/Importar"</p>
+            </div>
+          )}
         </>
       )}
 
       {abaDashboard === 'lista' && (
-        <ListaGastos 
-          gastos={gastos} 
-          onEditar={handleEditar}
-          onDeletar={handleDeletar}
-        />
+        gastos.length === 0 ? (
+          <div className="dashboard-empty">
+            <span className="empty-icon">📋</span>
+            <h3>Nenhum gasto registrado ainda</h3>
+            <p>Adicione gastos para visualizar a lista</p>
+          </div>
+        ) : (
+          <ListaGastos 
+            gastos={gastos} 
+            onEditar={handleEditar}
+            onDeletar={handleDeletar}
+          />
+        )
       )}
 
       {abaDashboard === 'calendario' && (
-        <CalendarioGastos gastos={gastos} />
+        gastos.length === 0 ? (
+          <div className="dashboard-empty">
+            <span className="empty-icon">📅</span>
+            <h3>Nenhum gasto registrado ainda</h3>
+            <p>Adicione gastos para visualizar o calendário</p>
+          </div>
+        ) : (
+          <CalendarioGastos gastos={gastos} />
+        )
       )}
 
       {abaDashboard === 'metas' && (
@@ -271,6 +297,10 @@ function Dashboard({ apiUrl }) {
           gastos={gastos}
           onImportar={handleImportar}
         />
+      )}
+
+      {abaDashboard === 'config' && (
+        <ConfiguracaoOrcamento />
       )}
 
       {/* Modal de Edição */}
