@@ -6,7 +6,6 @@ export default defineConfig({
   base: '/GastosApp/',
   build: {
     outDir: 'dist',
-    sourcemap: false,
-    assetsDir: 'assets'
+    emptyOutDir: true,
   }
 })
